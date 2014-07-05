@@ -18,7 +18,7 @@ GPX.prototype.make =
     .node('gpx').attr
     ({
       version : 1.1,
-      creator : 'www.github.com/kanetkarster/gpx-js'
+      creator : 'www.github.com/kanetkarster/gpx-write'
     })
     //Metadata
       .node('metadata')
@@ -30,7 +30,8 @@ GPX.prototype.make =
       .parent()
         .node('time',(new Date()).toISOString())
       .parent()
-    .parent()  //Track
+    .parent()
+    //Track
       .node('trk')
         .node('name', config.TRACK_NAME)  //TODO
       .parent()
@@ -49,8 +50,8 @@ GPX.prototype.write =
 GPX.prototype.addTrkpt =
   function (latitude, longitude, elevation, time){
     var trksegs = this.doc.get('//trk').childNodes();
-    //Gets last trkseg
     trksegs[trksegs.length - 1]
+    //Trkseg
       .node('trkpt').attr({lat: latitude, long: longitude})
         .node('ele', elevation.toString())
       .parent()
@@ -67,8 +68,10 @@ GPX.prototype.addTrkseg =
     this.write(doc.toString());
     return this.doc;
   }
+
 GPX.prototype.toString =
   function(){
     return this.doc.toString();
   }
+
 module.exports = GPX;
