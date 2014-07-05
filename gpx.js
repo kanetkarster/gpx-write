@@ -1,59 +1,74 @@
 var libxml = require('libxmljs'),
     fs = require('fs');
-
 var config = require('./config.js');
-var FILE = process.argv[2] || config.FILE;
 
-if(!fs.existsSync(FILE)){
-  createGPXFile(FILE);
+function GPX (FILE_NAME){
+  this.FILE = FILE_NAME;
+  this.doc = fs.existsSync(this.FILE)
+              ? libxml.parseXmlString(fs.readFileSync(this.FILE).toString())
+              : this.make();
 }
-else addTrackPoint(65.4321, 12.3456, 4321, '7/4/14');
-//else addTrackSeg();
-function createGPXFile(FILE){
-  var doc = new libxml.Document();
-  doc
-  //Header
-  .node('gpx').attr
-  ({
-    version : 1.1,
-    creator : 'www.github.com/kanetkarster/gpx-js'
-  })
-  //Metadata
-    .node('metadata')
-      .node('owner')
-        .node('name', config.NAME)
+
+GPX.prototype.make =
+  function (){
+    console.log('making new document')
+    var doc = new libxml.Document();
+    doc
+    //Header
+    .node('gpx').attr
+    ({
+      version : 1.1,
+      creator : 'www.github.com/kanetkarster/gpx-js'
+    })
+    //Metadata
+      .node('metadata')
+        .node('owner')
+          .node('name', config.NAME)
+        .parent()
+          .node('email').attr(config.EMAIL)
+        .parent()
       .parent()
-        .node('email').attr(config.EMAIL)
+        .node('time',(new Date()).toISOString())
       .parent()
-    .parent()
-      .node('time',(new Date()).toISOString())
-    .parent()
-  .parent()  //Track
-    .node('trk')
-      .node('name', config.TRACK_NAME)  //TODO
-    .parent()
+    .parent()  //Track
+      .node('trk')
+        .node('name', config.TRACK_NAME)  //TODO
+      .parent()
+        .node('trkseg').attr({name: (new Date).toISOString()})
+      .parent()
+    ;
+    this.write(doc.toString());
+    return doc;
+  }
+
+GPX.prototype.write =
+  function(xmlstring){
+    fs.writeFileSync(this.FILE, xmlstring)
+  }
+
+GPX.prototype.addTrkpt =
+  function (latitude, longitude, elevation, time){
+    var trksegs = this.doc.get('//trk').childNodes();
+    //Gets last trkseg
+    trksegs[trksegs.length - 1]
+      .node('trkpt').attr({lat: latitude, long: longitude})
+        .node('ele', elevation.toString())
+      .parent()
+        .node('time', time.toString())
+    this.write(this.doc.toString());
+    return this.doc;
+  }
+
+GPX.prototype.addTrkseg =
+  function(){
+    var trk = this.doc.get('//trk');
+    trk
       .node('trkseg').attr({name: (new Date).toISOString()})
-    .parent()
-  ;
-  fs.writeFileSync(FILE, doc.toString());
-}
-
-function addTrackPoint(latitude, longitude, elevation, time){
-
-  var doc = libxml.parseXmlString(fs.readFileSync(FILE).toString());
-  var trksegs = doc.get('///trk').childNodes();
-  trksegs[trksegs.length - 1]
-    .node('trkpt').attr({lat: latitude, long: longitude})
-      .node('ele', elevation)
-    .parent()
-      .node('time', time)
-  fs.writeFileSync(FILE, doc.toString());
-}
-
-function addTrackSeg(){
-  var doc = libxml.parseXmlString(fs.readFileSync(FILE).toString());
-  var trk = doc.get('//trk');
-  trk
-    .node('trkseg').attr({name: (new Date).toISOString()})
-  fs.writeFileSync(FILE, doc.toString());
-}
+    this.write(doc.toString());
+    return this.doc;
+  }
+GPX.prototype.toString =
+  function(){
+    return this.doc.toString();
+  }
+module.exports = GPX;
