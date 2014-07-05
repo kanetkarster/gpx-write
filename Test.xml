@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="www.github.com/kanetkarster/gpx-js">
+  <metadata>
+    <owner>
+      <name>me</name>
+      <email id="me" domain="example.com"/>
+    </owner>
+    <time>2014-07-05T01:58:10.853Z</time>
+  </metadata>
+  <trk>
+    <name>route</name>
+    <trkseg name="2014-07-05T01:58:10.854Z"><trkpt lat="65.4321" long="12.3456"><ele/><time>7/4/14</time></trkpt><trkpt lat="65.4321" long="12.3456"><ele/><time>7/4/14</time></trkpt></trkseg>
+  <trkseg name="2014-07-05T01:58:14.817Z"><trkpt lat="65.4321" long="12.3456"><ele/><time>7/4/14</time></trkpt></trkseg><trkseg name="2014-07-05T14:25:15.568Z"><trkpt lat="65.4321" long="12.3456"><ele/><time>7/4/14</time></trkpt><trkpt lat="65.4321" long="12.3456"><ele/><time>7/4/14</time></trkpt><trkpt lat="65.4321" long="12.3456"><ele/><time>7/4/14</time></trkpt></trkseg></trk>
+</gpx>

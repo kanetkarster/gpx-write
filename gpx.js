@@ -7,8 +7,8 @@ var FILE = process.argv[2] || config.FILE;
 if(!fs.existsSync(FILE)){
   createGPXFile(FILE);
 }
-//else addTrackPoint(65.4321, 12.3456, 4321, '7/4/14');
-else addTrackSeg();
+else addTrackPoint(65.4321, 12.3456, 4321, '7/4/14');
+//else addTrackSeg();
 function createGPXFile(FILE){
   var doc = new libxml.Document();
   doc
@@ -32,16 +32,17 @@ function createGPXFile(FILE){
     .node('trk')
       .node('name', config.TRACK_NAME)  //TODO
     .parent()
-      .node('trkseg', (new Date).toISOString())
+      .node('trkseg').attr({name: (new Date).toISOString()})
     .parent()
   ;
   fs.writeFileSync(FILE, doc.toString());
 }
 
 function addTrackPoint(latitude, longitude, elevation, time){
+
   var doc = libxml.parseXmlString(fs.readFileSync(FILE).toString());
-  var trkseg = doc.get('//trkseg');
-  trkseg
+  var trksegs = doc.get('///trk').childNodes();
+  trksegs[trksegs.length - 1]
     .node('trkpt').attr({lat: latitude, long: longitude})
       .node('ele', elevation)
     .parent()
@@ -53,6 +54,6 @@ function addTrackSeg(){
   var doc = libxml.parseXmlString(fs.readFileSync(FILE).toString());
   var trk = doc.get('//trk');
   trk
-    .node('trkseg', 'my track seg');
+    .node('trkseg').attr({name: (new Date).toISOString()})
   fs.writeFileSync(FILE, doc.toString());
 }
