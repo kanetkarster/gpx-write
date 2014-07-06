@@ -28,16 +28,9 @@ GPX.prototype.make =
           .node('email').attr(config.EMAIL)
         .parent()
       .parent()
-        .node('time',(new Date()).toISOString())
-      .parent()
-    .parent()
-    //Track
-      .node('trk')
-        .node('name', config.TRACK_NAME)  //TODO
-      .parent()
-        .node('trkseg').attr({name: (new Date).toISOString()})
-      .parent()
+        .node('time',(new Date()).toISOString()).substr(0, 10)
     ;
+
     this.write(doc.toString());
     return doc;
   }
@@ -47,15 +40,34 @@ GPX.prototype.write =
     fs.writeFileSync(this.FILE, xmlstring)
   }
 
-GPX.prototype.addTrkpt =
-  function (latitude, longitude, elevation, time){
-    var trksegs = this.doc.get('//trk').childNodes();
-    trksegs[trksegs.length - 1]
-    //Trkseg
-      .node('trkpt').attr({lat: latitude, long: longitude})
-        .node('ele', elevation.toString())
+//Track
+GPX.prototype.addTrk =
+  function(TRACK_NAME){
+    this.doc.root()
+      .node('trk')
+        .node('name', config.TRACK_NAME)  //TODO
       .parent()
-        .node('time', time.toString())
+        .node('trkseg').attr({name: TRACK_NAME || (new Date).toISOString().substr(0, 10)})
+    ;
+
+    this.write(this.doc.toString());
+    return this.doc;
+  }
+
+GPX.prototype.addTrkpt =
+  function (latitude, longitude, properties, root){
+    var child = root
+      .node('trkpt').attr({
+        lat: latitude,
+        long: longitude
+      .parent()
+        .node('time', (new Date).toISOString().substr(0, 19))
+    });
+
+    for (var key in properties){
+      child.node(key, properties[key].toString());
+    }
+
     this.write(this.doc.toString());
     return this.doc;
   }
@@ -67,6 +79,23 @@ GPX.prototype.addTrkseg =
       .node('trkseg').attr({name: (new Date).toISOString()})
     this.write(doc.toString());
     return this.doc;
+  }
+
+GPX.prototype.addWpt =
+  function(latitude, longitude, properties, root){
+    var child = root
+      .node('wpt').attr({
+        lat: latitude,
+        long: longitude
+    });
+
+    for (var key in properties){
+      child
+        .node(key, properties[key].toString());
+    }
+
+  this.write(this.doc.toString());
+  return this.doc;
   }
 
 GPX.prototype.toString =
